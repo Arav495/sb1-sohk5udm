@@ -1,4 +1,3 @@
-// src/api/receive-bill.ts
 export async function POST(request: Request) {
   try {
     const data = await request.json();
@@ -8,7 +7,7 @@ export async function POST(request: Request) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error receiving bill:", err);
     return new Response(
       JSON.stringify({ status: "error", message: err.message }),

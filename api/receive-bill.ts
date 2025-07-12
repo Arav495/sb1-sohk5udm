@@ -1,33 +1,39 @@
 // api/receive-bill.ts
 
-export const config = {
-  runtime: 'edge',
-};
+import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(req: Request) {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Only POST requests allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+// Replace these with your actual project values
+const supabaseUrl = 'https://ujbytwqmhwcducxtkmix.supabase.co';
+const supabaseKey = 'YOUR_SERVICE_ROLE_KEY'; // from the "API Keys" screen
+const supabase = createClient(supabaseUrl, supabaseKey);
 
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
+    const body = await request.json();
 
-    console.log('✅ Bill received:', body);
+    // Insert into the Supabase table
+    const { error } = await supabase.from('birdy').insert([
+      {
+        id: body.id,
+        brand: body.brand,
+        store_location: body.store_location,
+        order_id: body.order_id,
+        amount: body.amount,
+        date: body.date,
+        delivery_date: body.delivery_date,
+        payment_method: body.payment_method,
+        items: body.items,
+      },
+    ]);
 
-    // Example: You can later save this to a database or process it further here.
+    if (error) {
+      console.error('Supabase insert error:', error);
+      return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500 });
+    }
 
-    return new Response(JSON.stringify({ success: true, received: body }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (err) {
-    console.error('❌ Error parsing request:', err);
-    return new Response(JSON.stringify({ error: 'Failed to parse bill data' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
+  } catch (err: any) {
+    console.error('API handler error:', err);
+    return new Response(JSON.stringify({ success: false, error: err.message }), { status: 400 });
   }
 }

@@ -1,4 +1,3 @@
-// api/receive-bill.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from '../src/supabaseClient'; // ✅ Use shared client
 
@@ -37,4 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ message: 'Bill stored successfully' });
 
   } catch (err: any) {
-    console.error('[CRITICAL] Unhandled error:', err
+    console.error('[CRITICAL] Unhandled error:', err.message);
+    return res.status(500).json({ error: 'Unhandled server error', details: err.message });
+  }
+}

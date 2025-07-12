@@ -1,22 +1,33 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+// api/receive-bill.ts
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req: Request) {
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Only POST requests allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Only POST requests allowed' });
-    }
+    const body = await req.json();
 
-    const bill = req.body;
+    console.log('✅ Bill received:', body);
 
-    if (!bill || typeof bill !== 'object') {
-      return res.status(400).json({ error: 'Invalid or empty bill data' });
-    }
+    // Example: You can later save this to a database or process it further here.
 
-    console.log('✅ Bill received:', bill);
-
-    return res.status(200).json({ success: true, message: 'Bill received by Birdy 🎉' });
-  } catch (err: any) {
-    console.error('❌ Error:', err);
-    return res.status(500).json({ error: 'Internal Server Error', details: err.message });
+    return new Response(JSON.stringify({ success: true, received: body }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    console.error('❌ Error parsing request:', err);
+    return new Response(JSON.stringify({ error: 'Failed to parse bill data' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

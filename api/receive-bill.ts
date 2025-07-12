@@ -1,29 +1,24 @@
-export const config = {
-  runtime: 'edge',
-};
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req: Request) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Only POST requests allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
-    const body = await req.json();
+    const bill = req.body;
 
-    // Optional: You can log or store this
-    console.log('Received bill:', body);
+    if (!bill || Object.keys(bill).length === 0) {
+      return res.status(400).json({ error: 'Empty or invalid bill data' });
+    }
 
-    return new Response(JSON.stringify({ success: true, data: body }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: 'Invalid JSON or internal error', detail: err.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    console.log('Received bill data:', bill);
+
+    // 🧠 TODO: Save to DB or forward to your billing logic here
+
+    return res.status(200).json({ message: 'Bill received successfully' });
+  } catch (error: any) {
+    console.error('Error handling bill:', error);
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 }

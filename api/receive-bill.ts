@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../src/supabaseClient'; // ✅ Use shared client
+import { supabase } from '../src/supabaseClient';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -14,13 +14,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing required fields: order_id or amount' });
     }
 
-    // Format values
+    // Format values (especially stringifying items)
     const formatted = {
-      ...data,
+      brand: data.brand,
+      store_location: data.store_location,
+      order_id: data.order_id,
       amount: Number(data.amount),
       date: new Date(data.date).toISOString().split('T')[0],
       delivery_date: new Date(data.delivery_date).toISOString().split('T')[0],
-      items: typeof data.items === 'string' ? JSON.parse(data.items) : data.items,
+      payment_method: data.payment_method,
+      items: JSON.stringify(data.items), // ✅ This is the key fix
     };
 
     console.log('[DEBUG] Formatted data before insert:', formatted);
@@ -40,3 +43,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Unhandled server error', details: err.message });
   }
 }
+

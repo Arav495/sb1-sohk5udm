@@ -1,25 +1,29 @@
-export default async function handler(req: Request): Promise<Response> {
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req: Request) {
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Only POST requests allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
-    if (req.method === "POST") {
-      const data = await req.json();
-      console.log("Received bill data:", data);
+    const body = await req.json();
 
-      return new Response(JSON.stringify({ status: "success", data }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    // Optional: You can log or store this
+    console.log('Received bill:', body);
 
-    // Optional: for browser testing
-    return new Response(
-      JSON.stringify({ status: "ready", message: "Send a POST request to submit bill data." }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ success: true, data: body }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (err: any) {
-    console.error("Error receiving bill:", err);
-    return new Response(
-      JSON.stringify({ status: "error", message: err.message }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Invalid JSON or internal error', detail: err.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Replace these with your actual project values
 const supabaseUrl = 'https://ujbytwqmhwcducxtkmix.supabase.co';
-const supabaseKey = 'YOUR_SERVICE_ROLE_KEY'; // from the "API Keys" screen
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqYnl0d3FtaHdjZHVjeHRrbWl4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjMzNjI3MiwiZXhwIjoyMDY3OTEyMjcyfQ.tt7WLRNSsmTz39XaCG6g8N_bBECrKCeAWuYFnkGkHIU'; // from the "API Keys" screen
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request: Request) {

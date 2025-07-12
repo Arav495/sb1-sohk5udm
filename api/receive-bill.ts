@@ -1,6 +1,6 @@
 // api/receive-bill.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../src/supabaseClient'; // use shared supabase client
+import { supabase } from '../src/supabaseClient'; // ✅ Use shared client
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -9,31 +9,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const data = req.body;
-    console.log('Received bill data:', data);
+    console.log('[INFO] Raw data received:', data);
 
     if (!data.order_id || !data.amount) {
       return res.status(400).json({ error: 'Missing required fields: order_id or amount' });
     }
 
-    // Format values to match Supabase column types
-    const formattedData = {
+    // Format values
+    const formatted = {
       ...data,
-      amount: Number(data.amount), // ensure numeric
-      date: new Date(data.date).toISOString().split('T')[0], // YYYY-MM-DD
-      delivery_date: new Date(data.delivery_date).toISOString().split('T')[0], // YYYY-MM-DD
-      items: typeof data.items === 'string' ? JSON.parse(data.items) : data.items, // ensure JSON object
+      amount: Number(data.amount),
+      date: new Date(data.date).toISOString().split('T')[0],
+      delivery_date: new Date(data.delivery_date).toISOString().split('T')[0],
+      items: typeof data.items === 'string' ? JSON.parse(data.items) : data.items,
     };
 
-    const { error } = await supabase.from('birdy').insert([formattedData]);
+    console.log('[DEBUG] Formatted data before insert:', formatted);
+
+    const { error } = await supabase.from('birdy').insert([formatted]);
 
     if (error) {
-      console.error('Supabase insert error:', error.message);
+      console.error('[ERROR] Supabase insert error:', error.message);
       return res.status(500).json({ error: 'Supabase insert failed', details: error.message });
     }
 
+    console.log('[SUCCESS] Bill inserted successfully');
     return res.status(200).json({ message: 'Bill stored successfully' });
+
   } catch (err: any) {
-    console.error('Server error:', err.message);
-    return res.status(500).json({ error: 'Server error', details: err.message });
-  }
-}
+    console.error('[CRITICAL] Unhandled error:', err

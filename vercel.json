@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "api/receive-bill.ts": {
+      "runtime": "edge",
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/receive-bill",
+      "dest": "api/receive-bill.ts"
+    }
+  ]
+}

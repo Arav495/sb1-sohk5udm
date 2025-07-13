@@ -53,12 +53,15 @@ export default function WalletScreen() {
 
   useEffect(() => {
     const loadBills = async () => {
+      console.log('🚀 WalletScreen: Starting to load bills...');
       const bills = await fetchBills();
-      console.log('Fetched bills:', bills);
+      console.log('🎯 WalletScreen: Fetched bills:', bills);
+      console.log('🎯 WalletScreen: Bills count:', bills.length);
 
       const grouped: Record<string, BrandCategory> = {};
       bills.forEach((bill: Bill) => {
         const brand = bill.brand;
+        console.log('🏷️ Processing bill for brand:', brand, 'Amount:', bill.amount);
         if (!grouped[brand]) {
           grouped[brand] = {
             brand,
@@ -70,6 +73,8 @@ export default function WalletScreen() {
         grouped[brand].bills.push(bill);
       });
 
+      console.log('📦 Grouped categories:', Object.keys(grouped));
+      console.log('📦 Full grouped data:', grouped);
       setBrandCategories(Object.values(grouped));
     };
 

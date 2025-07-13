@@ -17,6 +17,7 @@ const fetchBills = async () => {
   if (data && data.length > 0) {
     console.log('📋 First bill structure:', data[0]);
     console.log('📋 All bill brands:', data.map(bill => bill.brand));
+    console.log('📋 Sample bill keys:', Object.keys(data[0]));
   }
   
   return data || [];

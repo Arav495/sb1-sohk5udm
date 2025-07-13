@@ -6,7 +6,7 @@ import fetchBills from './fetchBills';
 import BillCard from './BillCard';
 
 type Bill = {
-  id: string;
+  id?: string;
   brand: string;
   amount: number;
   date: string;
@@ -62,6 +62,13 @@ export default function WalletScreen() {
       bills.forEach((bill: Bill) => {
         const brand = bill.brand;
         console.log('🏷️ Processing bill for brand:', brand, 'Amount:', bill.amount);
+        
+        // Ensure each bill has an ID
+        const billWithId = {
+          ...bill,
+          id: bill.id || `${bill.order_id}-${bill.date}` // Use order_id + date as fallback ID
+        };
+        
         if (!grouped[brand]) {
           grouped[brand] = {
             brand,
@@ -70,7 +77,7 @@ export default function WalletScreen() {
             bills: [],
           };
         }
-        grouped[brand].bills.push(bill);
+        grouped[brand].bills.push(billWithId);
       });
 
       console.log('📦 Grouped categories:', Object.keys(grouped));

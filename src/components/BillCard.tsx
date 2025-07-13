@@ -2,7 +2,7 @@ import React from 'react';
 import { ExternalLink, Shield, RefreshCw, Calendar, MapPin, CreditCard, Hash, Package } from 'lucide-react';
 
 interface Bill {
-  id: string;
+  id?: string;
   brand: string;
   amount: number;
   date: string;

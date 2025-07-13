@@ -5,40 +5,48 @@ const fetchBills = async () => {
     console.log('🔍 Starting to fetch bills from Supabase...');
     console.log('🔧 Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
     console.log('🔧 Supabase Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
-    
-    // Test the connection first
-    const { data: testData, error: testError } = await supabase
-      .from('birdy')
-      .select('count', { count: 'exact', head: true });
-    
-    if (testError) {
-      console.error('❌ Supabase connection test failed:', testError);
+
+    // Confirm credentials first
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      console.error('❌ Missing Supabase credentials in .env file');
       return [];
     }
-    
-    console.log('✅ Supabase connection successful');
-    
+
     const { data, error } = await supabase
       .from('birdy')
-      .select('id, brand, amount, date, store_location, order_id, payment_method, items, delivery_date, created_at')
+      .select(`
+        id,
+        brand,
+        amount,
+        date,
+        store_location,
+        order_id,
+        payment_method,
+        delivery_date,
+        created_at,
+        items
+      `)
       .order('created_at', { ascending: false });
-    
+
     if (error) {
-      console.error('❌ Error fetching bills:', error.message);
-      console.error('❌ Full error:', error);
+      console.error('❌ Error fetching bills from Supabase:', error.message);
       return [];
     }
-    
-    console.log('✅ Raw data from Supabase:', data);
-    console.log('📊 Number of bills found:', data?.length || 0);
-    
-    if (data && data.length > 0) {
-      console.log('📋 First bill structure:', data[0]);
-      console.log('📋 All bill brands:', data.map(bill => bill.brand));
-      console.log('📋 Sample bill keys:', Object.keys(data[0]));
+
+    if (!data || data.length === 0) {
+      console.warn('⚠️ Supabase returned 0 rows');
+    } else {
+      console.log('✅ Supabase returned data:', data);
+      console.log('📊 Total bills:', data.length);
     }
-    
-    return data || [];
+
+    // Optional: parse items JSON string if needed
+    const parsed = data.map(bill => ({
+      ...bill,
+      items: typeof bill.items === 'string' ? JSON.parse(bill.items) : bill.items
+    }));
+
+    return parsed;
   } catch (error) {
     console.error('💥 Unexpected error in fetchBills:', error);
     return [];

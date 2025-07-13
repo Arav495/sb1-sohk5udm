@@ -1,5 +1,13 @@
 import React from 'react';
 
+type Item = {
+  name: string;
+  qty: string;
+  price: string;
+  size: string;
+  color: string;
+};
+
 type Bill = {
   id?: string;
   brand: string;
@@ -10,13 +18,7 @@ type Bill = {
   payment_method: string;
   delivery_date: string;
   created_at?: string;
-  items: {
-    name: string;
-    qty: string;
-    price: string;
-    size: string;
-    color: string;
-  }[];
+  items: Item[];
 };
 
 interface Props {
@@ -25,55 +27,47 @@ interface Props {
 
 const BillCard: React.FC<Props> = ({ bill }) => {
   return (
-    <div className="bg-white shadow-sm border border-gray-200 rounded-2xl p-4">
-      {/* Header: Brand + Store */}
-      <div className="flex justify-between items-center mb-2">
-        <h4 className="text-md font-bold text-gray-800">{bill.brand}</h4>
-        <p className="text-sm text-gray-500">{bill.store_location}</p>
-      </div>
-
-      {/* Order Info */}
-      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-2">
-        <p>
-          <strong>Order ID:</strong> {bill.order_id}
-        </p>
-        <p>
+    <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+      {/* Order Meta Info */}
+      <div className="text-sm text-gray-700 space-y-1 mb-3">
+        <div>
+          <strong>Order ID:</strong> {bill.order_id}{' '}
+          <span className="mx-2 text-gray-400">|</span>
           <strong>Payment:</strong> {bill.payment_method}
-        </p>
-        <p>
+        </div>
+        <div>
           <strong>Delivered:</strong> {bill.delivery_date}
-        </p>
+        </div>
       </div>
 
-      {/* Items */}
-      <div className="mt-3 space-y-2 text-sm">
-        <p className="font-semibold text-gray-700">🧾 Items Purchased:</p>
-        {bill.items.map((item, index) => (
-          <div
-            key={index}
-            className="bg-gray-100 rounded-md px-3 py-2 text-gray-800"
-          >
-            {`${item.name} (Size: ${item.size}, Color: ${item.color}, Qty: ${item.qty}, Price: ₹${item.price})`}
-          </div>
-        ))}
+      {/* Items List */}
+      <div className="mt-2">
+        <p className="font-semibold text-gray-800 mb-2">🧾 Items Purchased:</p>
+        <ul className="space-y-1 text-sm text-gray-700">
+          {bill.items.map((item, index) => (
+            <li key={index} className="list-disc list-inside">
+              {`${item.name} (Size: ${item.size}, Color: ${item.color}, Qty: ${item.qty}, Price: ₹${item.price})`}
+            </li>
+          ))}
+        </ul>
       </div>
 
-      {/* Total Price */}
-      <div className="mt-3 text-right font-semibold text-gray-900">
+      {/* Total */}
+      <div className="mt-4 text-right font-bold text-gray-900">
         Total: ₹{bill.amount.toLocaleString('en-IN')}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex space-x-2 mt-4">
+      {/* Warranty & Exchange Buttons */}
+      <div className="mt-4 flex gap-3">
         <a
           href="#"
-          className="bg-blue-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-blue-700"
+          className="flex-1 text-center bg-blue-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-blue-700"
         >
           🛡️ Warranty
         </a>
         <a
           href="#"
-          className="bg-gray-300 text-gray-800 rounded-full px-4 py-2 text-sm font-medium hover:bg-gray-400"
+          className="flex-1 text-center bg-gray-300 text-gray-800 rounded-full px-4 py-2 text-sm font-medium hover:bg-gray-400"
         >
           🔁 Exchange
         </a>

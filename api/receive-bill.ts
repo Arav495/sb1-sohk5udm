@@ -1,41 +1,44 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+// api/receive-bill.ts
 
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { createClient } from '@supabase/supabase-js';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method not allowed' });
-    }
-
-    const data = req.body;
-
-    if (!data.order_id || !data.amount) {
-      return res.status(400).json({ error: 'Missing order_id or amount' });
-    }
-
-    const formatted = {
-      brand: data.brand,
-      store_location: data.store_location,
-      order_id: data.order_id,
-      amount: Number(data.amount),
-      date: new Date(data.date).toISOString().split('T')[0],
-      delivery_date: new Date(data.delivery_date).toISOString().split('T')[0],
-      payment_method: data.payment_method,
-      items: data.items, // expects JSON array
-    };
-
-    const { error } = await supabase.from('birdy').insert([formatted]);
-
-    if (error) {
-      return res.status(500).json({ error: 'Supabase insert failed', details: error.message });
-    }
-
-    return res.status(200).json({ message: 'Bill stored successfully' });
-  } catch (err: any) {
-    return res.status(500).json({ error: 'Unhandled server error', details: err.message });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Only POST allowed' });
   }
+
+  const {
+    brand,
+    store_location,
+    order_id,
+    amount,
+    date,
+    delivery_date,
+    payment_method,
+    items,
+    email // <-- add this
+  } = req.body;
+
+  const { error } = await supabase.from('birdy').insert([
+    {
+      brand,
+      store_location,
+      order_id,
+      amount,
+      date,
+      delivery_date,
+      payment_method,
+      items,
+      email // <-- insert it here too
+    }
+  ]);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.status(200).json({ message: 'Bill stored successfully' });
 }

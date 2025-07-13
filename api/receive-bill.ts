@@ -1,5 +1,15 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-const { supabase } = require('../src/supabaseClient.cjs'); // ✅ Updated import for CommonJS
+// Step 2: Fix the ES Module error in receive-bill.ts
+
+// ✅ Replace the contents of your existing receive-bill.ts file with this:
+
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
+
+// Use environment variables
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!
+);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -14,12 +24,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing required fields: order_id or amount' });
     }
 
-    // Validate items field to avoid Supabase rejection
     if (!Array.isArray(data.items)) {
       return res.status(400).json({ error: 'Items field must be a valid array' });
     }
 
-    // Format values properly
     const formatted = {
       brand: data.brand || '',
       store_location: data.store_location || '',
@@ -28,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       date: new Date(data.date).toISOString().split('T')[0],
       delivery_date: new Date(data.delivery_date).toISOString().split('T')[0],
       payment_method: data.payment_method || '',
-      items: data.items, // ✅ Stored directly as JSON (array)
+      items: data.items,
     };
 
     console.log('[DEBUG] Formatted data before insert:', formatted);

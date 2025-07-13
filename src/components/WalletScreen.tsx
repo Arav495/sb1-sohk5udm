@@ -3,7 +3,6 @@ import { User, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import fetchBills from './fetchBills';
-import BillCard from './BillCard';
 
 type Bill = {
   id?: string;
@@ -13,6 +12,8 @@ type Bill = {
   store_location: string;
   order_id: string;
   payment_method: string;
+  delivery_date?: string;
+  created_at?: string;
   items: any;
 };
 
@@ -61,14 +62,11 @@ export default function WalletScreen() {
       const grouped: Record<string, BrandCategory> = {};
       bills.forEach((bill: Bill) => {
         const brand = bill.brand;
-        console.log('🏷️ Processing bill for brand:', brand, 'Amount:', bill.amount);
-        
-        // Ensure each bill has an ID
         const billWithId = {
           ...bill,
-          id: bill.id || `${bill.order_id}-${bill.date}` // Use order_id + date as fallback ID
+          id: bill.id || `${bill.order_id}-${bill.date}`,
         };
-        
+
         if (!grouped[brand]) {
           grouped[brand] = {
             brand,
@@ -80,8 +78,6 @@ export default function WalletScreen() {
         grouped[brand].bills.push(billWithId);
       });
 
-      console.log('📦 Grouped categories:', Object.keys(grouped));
-      console.log('📦 Full grouped data:', grouped);
       setBrandCategories(Object.values(grouped));
     };
 
@@ -190,7 +186,37 @@ export default function WalletScreen() {
                   {isExpanded && (
                     <div className="mt-4 space-y-4">
                       {cat.bills.map((bill) => (
-                        <BillCard key={bill.id} bill={bill} />
+                        <div
+                          key={bill.id}
+                          className="bg-white rounded-xl p-4 shadow border"
+                        >
+                          <div className="text-sm text-gray-500 mb-2">
+                            <strong>Order ID:</strong> {bill.order_id} &nbsp;|&nbsp;
+                            <strong>Payment:</strong> {bill.payment_method}
+                          </div>
+                          <div className="text-sm text-gray-500 mb-2">
+                            <strong>Delivered:</strong> {bill.delivery_date || bill.date}
+                          </div>
+
+                          <div className="text-sm mt-2">
+                            <h4 className="font-semibold text-gray-800 mb-1">
+                              🧾 Items Purchased:
+                            </h4>
+                            <ul className="list-disc pl-5 space-y-1">
+                              {bill.items.map((item: any, idx: number) => (
+                                <li key={idx} className="text-gray-700">
+                                  {typeof item === 'object'
+                                    ? `${item.name} (Size: ${item.size}, Color: ${item.color}, Qty: ${item.qty}, Price: ₹${item.price})`
+                                    : item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className="mt-4 text-right font-bold text-gray-800">
+                            Total: {formatCurrency(bill.amount)}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   )}

@@ -6,17 +6,11 @@ interface Bill {
   brand: string;
   amount: number;
   date: string;
-  items: string[];
-  warrantyUrl: string;
-  exchangeUrl: string;
-  category: string;
-  storeLocation: string;
-  paymentMethod: string;
-  orderId: string;
-  deliveryDate?: string;
-  returnPolicy: string;
-  sizes: string[];
-  colors: string[];
+  items: any;
+  store_location: string;
+  payment_method: string;
+  order_id: string;
+  delivery_date?: string;
 }
 
 interface BillCardProps {
@@ -52,13 +46,6 @@ export default function BillCard({ bill }: BillCardProps) {
     return `₹${amount.toLocaleString('en-IN')}`;
   };
 
-  const handleWarranty = () => {
-    window.open(bill.warrantyUrl, '_blank');
-  };
-
-  const handleExchange = () => {
-    window.open(bill.exchangeUrl, '_blank');
-  };
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
@@ -71,7 +58,7 @@ export default function BillCard({ bill }: BillCardProps) {
               <h3 className="text-xl font-bold">{bill.brand}</h3>
               <p className="text-white/80 text-sm flex items-center">
                 <MapPin size={12} className="mr-1" />
-                {bill.storeLocation}
+                {bill.store_location}
               </p>
             </div>
           </div>
@@ -112,22 +99,22 @@ export default function BillCard({ bill }: BillCardProps) {
             <Hash size={14} className="text-gray-500" />
             <div>
               <p className="text-gray-500 text-xs">Order ID</p>
-              <p className="font-medium text-gray-900">{bill.orderId}</p>
+              <p className="font-medium text-gray-900">{bill.order_id}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <CreditCard size={14} className="text-gray-500" />
             <div>
               <p className="text-gray-500 text-xs">Payment</p>
-              <p className="font-medium text-gray-900">{bill.paymentMethod}</p>
+              <p className="font-medium text-gray-900">{bill.payment_method}</p>
             </div>
           </div>
-          {bill.deliveryDate && (
+          {bill.delivery_date && (
             <div className="flex items-center space-x-2 col-span-2">
               <Package size={14} className="text-gray-500" />
               <div>
                 <p className="text-gray-500 text-xs">Delivered</p>
-                <p className="font-medium text-gray-900">{formatDate(bill.deliveryDate)}</p>
+                <p className="font-medium text-gray-900">{formatDate(bill.delivery_date)}</p>
               </div>
             </div>
           )}
@@ -141,42 +128,29 @@ export default function BillCard({ bill }: BillCardProps) {
           Items Purchased:
         </h4>
         <div className="space-y-3">
-          {bill.items.map((item, index) => (
+          {Array.isArray(bill.items) ? bill.items.map((item, index) => (
             <div key={index} className="bg-white rounded-lg p-3 border border-gray-100">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900 text-sm">{item}</p>
-                  <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                    {bill.sizes[index] && (
-                      <span className="bg-gray-100 px-2 py-1 rounded">
-                        Size: {bill.sizes[index]}
-                      </span>
-                    )}
-                    {bill.colors[index] && (
-                      <span className="bg-gray-100 px-2 py-1 rounded">
-                        Color: {bill.colors[index]}
-                      </span>
-                    )}
-                  </div>
+                  <p className="font-medium text-gray-900 text-sm">{typeof item === 'string' ? item : JSON.stringify(item)}</p>
                 </div>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="bg-white rounded-lg p-3 border border-gray-100">
+              <p className="font-medium text-gray-900 text-sm">{typeof bill.items === 'string' ? bill.items : JSON.stringify(bill.items)}</p>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Return Policy */}
-      <div className="px-4 py-3 bg-blue-50 border-b border-gray-100">
-        <p className="text-xs text-blue-700">
-          <strong>Return Policy:</strong> {bill.returnPolicy}
-        </p>
-      </div>
 
       {/* Action Buttons */}
       <div className="p-4 bg-white">
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={handleWarranty}
+            onClick={() => window.open('#', '_blank')}
             className="flex items-center justify-center space-x-2 py-3 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-all duration-200 text-sm font-medium hover:shadow-lg transform hover:scale-105"
           >
             <Shield size={16} />
@@ -184,7 +158,7 @@ export default function BillCard({ bill }: BillCardProps) {
             <ExternalLink size={12} />
           </button>
           <button
-            onClick={handleExchange}
+            onClick={() => window.open('#', '_blank')}
             className="flex items-center justify-center space-x-2 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-200 text-sm font-medium hover:shadow-lg transform hover:scale-105"
           >
             <RefreshCw size={16} />

@@ -1,4 +1,3 @@
-// src/components/fetchBills.ts
 import { supabase } from './supabaseClient';
 
 const fetchBills = async () => {
@@ -7,6 +6,7 @@ const fetchBills = async () => {
     console.error('Error fetching bills:', error.message);
     return [];
   }
+  console.log('Raw data from Supabase:', data);
   return data || [];
 };
 

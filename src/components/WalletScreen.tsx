@@ -1,4 +1,3 @@
-// src/components/WalletScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { User, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +13,7 @@ type Bill = {
   store_location: string;
   order_id: string;
   payment_method: string;
-  items: any; // adjust as needed
+  items: any;
 };
 
 type BrandCategory = {
@@ -53,7 +52,7 @@ export default function WalletScreen() {
   const [brandCategories, setBrandCategories] = useState<BrandCategory[]>([]);
 
   useEffect(() => {
-    async function loadBills() {
+    const loadBills = async () => {
       const bills = await fetchBills();
       console.log('Fetched bills:', bills);
 
@@ -72,7 +71,7 @@ export default function WalletScreen() {
       });
 
       setBrandCategories(Object.values(grouped));
-    }
+    };
 
     loadBills();
   }, []);
@@ -106,7 +105,7 @@ export default function WalletScreen() {
         </div>
       </div>
 
-      {/* Welcome */}
+      {/* Welcome Section */}
       <div className="max-w-md mx-auto px-4 py-6">
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-4 text-white mb-6">
           <h2 className="text-lg font-semibold">

@@ -36,9 +36,13 @@ export default function WalletScreen() {
   const [brandCategories, setBrandCategories] = useState<BrandCategory[]>([]);
 
   useEffect(() => {
-    async function loadBills() {
-      const bills: Bill[] = await fetchBills();
-
+  const loadBills = async () => {
+    const bills = await fetchBills();
+    console.log('Fetched bills from Supabase:', bills); // 👈 Add this
+    setAllBills(bills);
+  };
+  loadBills();
+}, []);
       // Group by brand
       const grouped: { [brand: string]: BrandCategory } = {};
 

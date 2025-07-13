@@ -1,172 +1,85 @@
 import React from 'react';
-import { ExternalLink, Shield, RefreshCw, Calendar, MapPin, CreditCard, Hash, Package } from 'lucide-react';
 
-interface Bill {
+type Bill = {
   id?: string;
   brand: string;
   amount: number;
   date: string;
-  items: any;
   store_location: string;
-  payment_method: string;
   order_id: string;
-  delivery_date?: string;
-}
+  payment_method: string;
+  delivery_date: string;
+  created_at?: string;
+  items: {
+    name: string;
+    qty: string;
+    price: string;
+    size: string;
+    color: string;
+  }[];
+};
 
-interface BillCardProps {
+interface Props {
   bill: Bill;
 }
 
-const brandLogos: { [key: string]: string } = {
-  'Zara': '🏷️',
-  'H&M': '👔',
-  'Uniqlo': '🧥',
-  'Myntra': '👗',
-  'Ajio': '👕'
-};
-
-const brandColors: { [key: string]: string } = {
-  'Zara': 'from-gray-800 to-black',
-  'H&M': 'from-red-600 to-red-800',
-  'Uniqlo': 'from-red-500 to-red-600',
-  'Myntra': 'from-pink-500 to-pink-700',
-  'Ajio': 'from-orange-500 to-orange-700'
-};
-
-export default function BillCard({ bill }: BillCardProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return `₹${amount.toLocaleString('en-IN')}`;
-  };
-
-
+const BillCard: React.FC<Props> = ({ bill }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
-      {/* Brand Header */}
-      <div className={`bg-gradient-to-r ${brandColors[bill.brand] || 'from-gray-800 to-black'} p-4 text-white relative overflow-hidden`}>
-        <div className="flex items-center justify-between relative z-10">
-          <div className="flex items-center space-x-3">
-            <div className="text-2xl">{brandLogos[bill.brand] || '🏪'}</div>
-            <div>
-              <h3 className="text-xl font-bold">{bill.brand}</h3>
-              <p className="text-white/80 text-sm flex items-center">
-                <MapPin size={12} className="mr-1" />
-                {bill.store_location}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold">{formatCurrency(bill.amount)}</div>
-            <div className="text-white/80 text-xs flex items-center justify-end">
-              <Calendar size={12} className="mr-1" />
-              {formatDate(bill.date)}
-            </div>
-          </div>
-        </div>
-
-        {/* Barcode Visual - Now on individual bills */}
-        <div className="mt-4 flex space-x-1 relative z-10">
-          {Array.from({ length: 25 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-white"
-              style={{
-                width: Math.random() > 0.5 ? '2px' : '4px',
-                height: '24px',
-                opacity: 0.9
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Background Pattern */}
-        <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
-          <div className="w-full h-full bg-white rounded-full transform translate-x-16 -translate-y-16"></div>
-        </div>
+    <div className="bg-white shadow-sm border border-gray-200 rounded-2xl p-4">
+      {/* Header: Brand + Store */}
+      <div className="flex justify-between items-center mb-2">
+        <h4 className="text-md font-bold text-gray-800">{bill.brand}</h4>
+        <p className="text-sm text-gray-500">{bill.store_location}</p>
       </div>
 
-      {/* Order Details */}
-      <div className="p-4 bg-gray-50 border-b border-gray-100">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center space-x-2">
-            <Hash size={14} className="text-gray-500" />
-            <div>
-              <p className="text-gray-500 text-xs">Order ID</p>
-              <p className="font-medium text-gray-900">{bill.order_id}</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <CreditCard size={14} className="text-gray-500" />
-            <div>
-              <p className="text-gray-500 text-xs">Payment</p>
-              <p className="font-medium text-gray-900">{bill.payment_method}</p>
-            </div>
-          </div>
-          {bill.delivery_date && (
-            <div className="flex items-center space-x-2 col-span-2">
-              <Package size={14} className="text-gray-500" />
-              <div>
-                <p className="text-gray-500 text-xs">Delivered</p>
-                <p className="font-medium text-gray-900">{formatDate(bill.delivery_date)}</p>
-              </div>
-            </div>
-          )}
-        </div>
+      {/* Order Info */}
+      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-2">
+        <p>
+          <strong>Order ID:</strong> {bill.order_id}
+        </p>
+        <p>
+          <strong>Payment:</strong> {bill.payment_method}
+        </p>
+        <p>
+          <strong>Delivered:</strong> {bill.delivery_date}
+        </p>
       </div>
 
       {/* Items */}
-      <div className="p-4 bg-gray-50">
-        <h4 className="font-medium text-gray-900 mb-3 text-sm flex items-center">
-          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-          Items Purchased:
-        </h4>
-        <div className="space-y-3">
-          {Array.isArray(bill.items) ? bill.items.map((item, index) => (
-            <div key={index} className="bg-white rounded-lg p-3 border border-gray-100">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900 text-sm">{typeof item === 'string' ? item : JSON.stringify(item)}</p>
-                </div>
-              </div>
-            </div>
-          )) : (
-            <div className="bg-white rounded-lg p-3 border border-gray-100">
-              <p className="font-medium text-gray-900 text-sm">{typeof bill.items === 'string' ? bill.items : JSON.stringify(bill.items)}</p>
-            </div>
-          )}
-        </div>
+      <div className="mt-3 space-y-2 text-sm">
+        <p className="font-semibold text-gray-700">🧾 Items Purchased:</p>
+        {bill.items.map((item, index) => (
+          <div
+            key={index}
+            className="bg-gray-100 rounded-md px-3 py-2 text-gray-800"
+          >
+            {`${item.name} (Size: ${item.size}, Color: ${item.color}, Qty: ${item.qty}, Price: ₹${item.price})`}
+          </div>
+        ))}
       </div>
 
-      {/* Return Policy */}
+      {/* Total Price */}
+      <div className="mt-3 text-right font-semibold text-gray-900">
+        Total: ₹{bill.amount.toLocaleString('en-IN')}
+      </div>
 
       {/* Action Buttons */}
-      <div className="p-4 bg-white">
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => window.open('#', '_blank')}
-            className="flex items-center justify-center space-x-2 py-3 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-all duration-200 text-sm font-medium hover:shadow-lg transform hover:scale-105"
-          >
-            <Shield size={16} />
-            <span>Warranty</span>
-            <ExternalLink size={12} />
-          </button>
-          <button
-            onClick={() => window.open('#', '_blank')}
-            className="flex items-center justify-center space-x-2 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-200 text-sm font-medium hover:shadow-lg transform hover:scale-105"
-          >
-            <RefreshCw size={16} />
-            <span>Exchange</span>
-            <ExternalLink size={12} />
-          </button>
-        </div>
+      <div className="flex space-x-2 mt-4">
+        <a
+          href="#"
+          className="bg-blue-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-blue-700"
+        >
+          🛡️ Warranty
+        </a>
+        <a
+          href="#"
+          className="bg-gray-300 text-gray-800 rounded-full px-4 py-2 text-sm font-medium hover:bg-gray-400"
+        >
+          🔁 Exchange
+        </a>
       </div>
     </div>
   );
-}
+};
+
+export default BillCard;

@@ -20,7 +20,7 @@ const fetchBills = async () => {
     
     const { data, error } = await supabase
       .from('birdy')
-      .select('*')
+      .select('id, brand, amount, date, store_location, order_id, payment_method, items, delivery_date, created_at')
       .order('created_at', { ascending: false });
     
     if (error) {

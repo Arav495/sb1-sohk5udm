@@ -41,16 +41,21 @@ const fetchBills = async () => {
     }
 
     // Optional: parse items JSON string if needed
-    const parsed = data.map(bill => ({
-      ...bill,
-      items: typeof bill.items === 'string' ? JSON.parse(bill.items) : bill.items
-    }));
+   const parsed = data.map(bill => {
+  let itemsParsed = bill.items;
 
-    return parsed;
-  } catch (error) {
-    console.error('💥 Unexpected error in fetchBills:', error);
-    return [];
+  if (typeof bill.items === 'string') {
+    try {
+      itemsParsed = JSON.parse(bill.items);
+    } catch (err) {
+      // Fallback: split plain string into an array
+      itemsParsed = bill.items.split(',').map((item: string) => item.trim());
+      console.warn('⚠️ Invalid JSON in bill.items, used fallback:', bill.items);
+    }
   }
-};
 
-export default fetchBills;
+  return {
+    ...bill,
+    items: itemsParsed,
+  };
+});

@@ -6,7 +6,6 @@ const fetchBills = async () => {
     console.log('🔧 Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
     console.log('🔧 Supabase Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
 
-    // Confirm credentials first
     if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
       console.error('❌ Missing Supabase credentials in .env file');
       return [];
@@ -40,22 +39,30 @@ const fetchBills = async () => {
       console.log('📊 Total bills:', data.length);
     }
 
-    // Optional: parse items JSON string if needed
-   const parsed = data.map(bill => {
-  let itemsParsed = bill.items;
+    const parsed = data.map(bill => {
+      let itemsParsed = bill.items;
 
-  if (typeof bill.items === 'string') {
-    try {
-      itemsParsed = JSON.parse(bill.items);
-    } catch (err) {
-      // Fallback: split plain string into an array
-      itemsParsed = bill.items.split(',').map((item: string) => item.trim());
-      console.warn('⚠️ Invalid JSON in bill.items, used fallback:', bill.items);
-    }
+      if (typeof bill.items === 'string') {
+        try {
+          itemsParsed = JSON.parse(bill.items);
+        } catch (err) {
+          itemsParsed = bill.items.split(',').map((item: string) => item.trim());
+          console.warn('⚠️ Invalid JSON in bill.items, used fallback:', bill.items);
+        }
+      }
+
+      return {
+        ...bill,
+        items: itemsParsed,
+      };
+    });
+
+    return parsed;
+
+  } catch (error) {
+    console.error('💥 Unexpected error in fetchBills:', error);
+    return [];
   }
+};
 
-  return {
-    ...bill,
-    items: itemsParsed,
-  };
-});
+export default fetchBills;

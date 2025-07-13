@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../src/supabaseClient';
+const { supabase } = require('../src/supabaseClient.cjs'); // ✅ Updated import for CommonJS
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -14,16 +14,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing required fields: order_id or amount' });
     }
 
-    // Format values for Supabase
+    // Validate items field to avoid Supabase rejection
+    if (!Array.isArray(data.items)) {
+      return res.status(400).json({ error: 'Items field must be a valid array' });
+    }
+
+    // Format values properly
     const formatted = {
-      brand: data.brand,
-      store_location: data.store_location,
+      brand: data.brand || '',
+      store_location: data.store_location || '',
       order_id: data.order_id,
       amount: Number(data.amount),
       date: new Date(data.date).toISOString().split('T')[0],
       delivery_date: new Date(data.delivery_date).toISOString().split('T')[0],
-      payment_method: data.payment_method,
-      items: Array.isArray(data.items) ? data.items : JSON.parse(data.items),
+      payment_method: data.payment_method || '',
+      items: data.items, // ✅ Stored directly as JSON (array)
     };
 
     console.log('[DEBUG] Formatted data before insert:', formatted);

@@ -1,5 +1,5 @@
 // src/components/fetchBills.ts
-import { supabase } from '../contexts/supabaseClient'; // update if path is different
+import { supabase } from './supabaseClient';
 
 const fetchBills = async () => {
   const { data, error } = await supabase.from('birdy').select('*');

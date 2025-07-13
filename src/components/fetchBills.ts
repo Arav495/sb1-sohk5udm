@@ -39,16 +39,28 @@ const fetchBills = async () => {
       console.log('📊 Total bills:', data.length);
     }
 
+    // ✅ Final and clean items parsing logic
     const parsed = data.map(bill => {
-      let itemsParsed = bill.items;
+      let itemsParsed = [];
 
       if (typeof bill.items === 'string') {
         try {
+          // Try normal JSON.parse
           itemsParsed = JSON.parse(bill.items);
         } catch (err) {
-          itemsParsed = bill.items.split(',').map((item: string) => item.trim());
-          console.warn('⚠️ Invalid JSON in bill.items, used fallback:', bill.items);
+          try {
+            // Fix missing brackets and parse again
+            const fixedJson = `[${bill.items.replace(/}\s*,\s*{/g, '},{')}]`;
+            itemsParsed = JSON.parse(fixedJson);
+            console.warn('⚠️ Fixed invalid JSON by wrapping and cleaning:', bill.items);
+          } catch (e) {
+            // Total fallback
+            itemsParsed = [{ name: bill.items }];
+            console.warn('❌ Could not parse items even after fixing. Showing as raw:', bill.items);
+          }
         }
+      } else if (Array.isArray(bill.items)) {
+        itemsParsed = bill.items;
       }
 
       return {

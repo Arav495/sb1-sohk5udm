@@ -1,13 +1,5 @@
 import React from 'react';
 
-type Item = {
-  name: string;
-  qty: string;
-  price: string;
-  size: string;
-  color: string;
-};
-
 type Bill = {
   id?: string;
   brand: string;
@@ -16,64 +8,66 @@ type Bill = {
   store_location: string;
   order_id: string;
   payment_method: string;
-  delivery_date: string;
+  delivery_date?: string;
   created_at?: string;
-  items: Item[];
+  items: any;
 };
 
-interface Props {
-  bill: Bill;
-}
+export default function BillCard({ bill }: { bill: Bill }) {
+  const formatCurrency = (amt: number) =>
+    `₹${amt.toLocaleString('en-IN')}`;
 
-const BillCard: React.FC<Props> = ({ bill }) => {
+  const handleRedirect = (url: string) => {
+    window.open(url, '_blank');
+  };
+
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-      {/* Order Meta Info */}
-      <div className="text-sm text-gray-700 space-y-1 mb-3">
-        <div>
-          <strong>Order ID:</strong> {bill.order_id}{' '}
-          <span className="mx-2 text-gray-400">|</span>
-          <strong>Payment:</strong> {bill.payment_method}
-        </div>
-        <div>
-          <strong>Delivered:</strong> {bill.delivery_date}
-        </div>
+    <div className="bg-white rounded-xl p-4 shadow border">
+      <div className="text-sm text-gray-500 mb-2">
+        <strong>Order ID:</strong> {bill.order_id} &nbsp;|&nbsp;
+        <strong>Payment:</strong> {bill.payment_method}
+      </div>
+      <div className="text-sm text-gray-500 mb-2">
+        <strong>Delivered:</strong> {bill.delivery_date || bill.date}
       </div>
 
-      {/* Items List */}
-      <div className="mt-2">
-        <p className="font-semibold text-gray-800 mb-2">🧾 Items Purchased:</p>
-        <ul className="space-y-1 text-sm text-gray-700">
-          {bill.items.map((item, index) => (
-            <li key={index} className="list-disc list-inside">
-              {`${item.name} (Size: ${item.size}, Color: ${item.color}, Qty: ${item.qty}, Price: ₹${item.price})`}
+      <div className="text-sm mt-2">
+        <h4 className="font-semibold text-gray-800 mb-1">
+          🧾 Items Purchased:
+        </h4>
+        <ul className="list-disc pl-5 space-y-1">
+          {bill.items.map((item: any, idx: number) => (
+            <li key={idx} className="text-gray-700">
+              {typeof item === 'object'
+                ? `${item.name} (Size: ${item.size}, Color: ${item.color}, Qty: ${item.qty}, Price: ₹${item.price})`
+                : item}
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Total */}
-      <div className="mt-4 text-right font-bold text-gray-900">
-        Total: ₹{bill.amount.toLocaleString('en-IN')}
+      <div className="mt-4 text-right font-bold text-gray-800">
+        Total: {formatCurrency(bill.amount)}
       </div>
 
-      {/* Warranty & Exchange Buttons */}
-      <div className="mt-4 flex gap-3">
-        <a
-          href="#"
-          className="flex-1 text-center bg-blue-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-blue-700"
+      <div className="mt-4 flex justify-end gap-3">
+        <button
+          onClick={() =>
+            handleRedirect('https://www.zara.com/in/en/help-center/FaultyItems')
+          }
+          className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 text-sm"
         >
-          🛡️ Warranty
-        </a>
-        <a
-          href="#"
-          className="flex-1 text-center bg-gray-300 text-gray-800 rounded-full px-4 py-2 text-sm font-medium hover:bg-gray-400"
+          🛡 Warranty
+        </button>
+        <button
+          onClick={() =>
+            handleRedirect('https://www.zara.com/in/en/help-center/HowToExchange')
+          }
+          className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-sm"
         >
           🔁 Exchange
-        </a>
+        </button>
       </div>
     </div>
   );
-};
-
-export default BillCard;
+}
